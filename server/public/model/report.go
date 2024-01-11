@@ -23,13 +23,15 @@ var (
 )
 
 type ReportingBaseOptions struct {
-	SortDesc            bool
-	PageSize            int
-	SortColumn          string
-	LastSortColumnValue string
-	DateRange           string
-	StartAt             int64
-	EndAt               int64
+	SortDesc        bool
+	Direction       string // Accepts only "prev" or "next"
+	PageSize        int
+	SortColumn      string
+	FromColumnValue string
+	FromId          string
+	DateRange       string
+	StartAt         int64
+	EndAt           int64
 }
 
 func (options *ReportingBaseOptions) PopulateDateRange(now time.Time) {
@@ -64,23 +66,18 @@ type UserReportQuery struct {
 }
 
 type UserReport struct {
-	Id          string `json:"id"`
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	CreateAt    int64  `json:"create_at,omitempty"`
-	DisplayName string `json:"display_name"`
-	Roles       string `json:"roles"`
+	User
 	UserPostStats
 }
 
 type UserReportOptions struct {
 	ReportingBaseOptions
-	LastUserId   string
 	Role         string
 	Team         string
 	HasNoTeam    bool
 	HideActive   bool
 	HideInactive bool
+	SearchTerm   string
 }
 
 func (u *UserReportOptions) IsValid() *AppError {
@@ -98,12 +95,7 @@ func (u *UserReportOptions) IsValid() *AppError {
 
 func (u *UserReportQuery) ToReport() *UserReport {
 	return &UserReport{
-		Id:            u.Id,
-		Username:      u.Username,
-		Email:         u.Email,
-		CreateAt:      u.CreateAt,
-		DisplayName:   u.GetDisplayName(ShowNicknameFullName),
-		Roles:         u.Roles,
+		User:          u.User,
 		UserPostStats: u.UserPostStats,
 	}
 }
